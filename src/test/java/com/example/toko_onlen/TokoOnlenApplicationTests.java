@@ -8,6 +8,7 @@ class TokoOnlenApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
