@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,58 +38,55 @@ class ProductServiceImplTest {
                 .name("Test Product")
                 .category("Category")
                 .description("Desc")
-                .price(100.0)
+                .price(BigDecimal.valueOf(100.0))
                 .stock(10)
                 .build();
 
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
-        Product result = productService.createProduct("Test Product", "Category", "Desc", 100.0, 10);
+        Product result = productService.createProduct("Test Product", "Category", "Desc", BigDecimal.valueOf(100.0), 10);
 
         assertNotNull(result);
         assertEquals("Test Product", result.getName());
-        verify(productRepository, times(1)).save(any(Product.class));
+        verify(productRepository).save(any(Product.class));
     }
 
     @Test
     void testCreateProduct_withInvalidData() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.createProduct("Test", "Cat", "Desc", -10.0, 5);
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.createProduct("Test", "Cat", "Desc", BigDecimal.valueOf(-10.0), 5));
     }
 
     @Test
     void testUpdateProduct_success() {
         UUID id = UUID.randomUUID();
         String idStr = id.toString();
-
         Product existingProduct = Product.builder()
                 .id(id)
                 .name("Old Name")
                 .category("Old Category")
                 .description("Old Description")
-                .price(100.0)
+                .price(BigDecimal.valueOf(100.0))
                 .stock(10)
                 .build();
 
         when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productRepository.save(any(Product.class))).thenAnswer(inv -> inv.getArgument(0));
 
         Product updatedProduct = productService.updateProduct(
-                idStr, "New Name", null, "", 150.0, null
+                idStr, "New Name", null, "", BigDecimal.valueOf(150.0), null
         );
 
         assertNotNull(updatedProduct);
-        assertEquals("New Name", updatedProduct.getName()); // berubah
-        assertEquals("Old Category", updatedProduct.getCategory()); // tetap
-        assertEquals("Old Description", updatedProduct.getDescription()); // tetap
-        assertEquals(150.0, updatedProduct.getPrice()); // berubah
-        assertEquals(10, updatedProduct.getStock()); // tetap
+        assertEquals("New Name", updatedProduct.getName());
+        assertEquals("Old Category", updatedProduct.getCategory());
+        assertEquals("Old Description", updatedProduct.getDescription());
+        assertEquals(BigDecimal.valueOf(150.0), updatedProduct.getPrice());
+        assertEquals(10, updatedProduct.getStock());
 
         verify(productRepository).findById(id);
         verify(productRepository).save(existingProduct);
     }
-
 
     @Test
     void testUpdateProduct_notFound() {
@@ -96,35 +94,30 @@ class ProductServiceImplTest {
         when(productRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () ->
-                productService.updateProduct(id.toString(), "Name", "Cat", "Desc", 10.0, 1)
-        );
+                productService.updateProduct(id.toString(), "Name", "Cat", "Desc", BigDecimal.valueOf(10.0), 1));
     }
 
     @Test
     void testUpdateProduct_withInvalidIdFormat() {
-        String invalidId = "not-a-uuid";
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.updateProduct(invalidId, "Name", "Cat", "Desc", 10.0, 1);
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.updateProduct("not-a-uuid", "Name", "Cat", "Desc", BigDecimal.valueOf(10.0), 1));
     }
 
     @Test
     void testUpdateProduct_withInvalidPriceFormat() {
-        Double invalidPrice = -1000.2;
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.updateProduct(UUID.randomUUID().toString(), "Name", "Cat", "Desc", invalidPrice, 1);
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.updateProduct(UUID.randomUUID().toString(), "Name", "Cat", "Desc", BigDecimal.valueOf(-1000.2), 1));
     }
 
     @Test
     void testDeleteProduct_success() {
         UUID id = UUID.randomUUID();
-        Product existingProduct = Product.builder().build();
-        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
+        Product product = Product.builder().build();
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
 
         productService.deleteProduct(id.toString());
 
-        verify(productRepository).delete(existingProduct);
+        verify(productRepository).delete(product);
     }
 
     @Test
@@ -137,10 +130,7 @@ class ProductServiceImplTest {
 
     @Test
     void testDeleteProduct_withInvalidIdFormat() {
-        String invalidId = "not-a-uuid";
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.deleteProduct(invalidId);
-        });
+        assertThrows(IllegalArgumentException.class, () -> productService.deleteProduct("not-a-uuid"));
     }
 
     @Test
@@ -157,24 +147,19 @@ class ProductServiceImplTest {
     @Test
     void testGetProduct_notFound() {
         UUID id = UUID.randomUUID();
-        when(productRepository.findById(id)).thenReturn(Optional.empty());
+        when(productRepository.findById(id)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> productService.getProduct(id.toString()));
     }
 
     @Test
     void testGetProduct_withInvalidIdFormat() {
-        String invalidId = "not-a-uuid";
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.getProduct(invalidId);
-        });
+        assertThrows(IllegalArgumentException.class, () -> productService.getProduct("not-a-uuid"));
     }
 
     @Test
     void testListProductsPageable_withoutSearch() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("price").ascending());
         Page<Product> page = new PageImpl<>(List.of(Product.builder().build()));
-
         when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
         Page<Product> result = productService.listProductsPageable(null, 0, 10, "price", "asc");
@@ -185,9 +170,7 @@ class ProductServiceImplTest {
 
     @Test
     void testListProductsPageable_withSearch() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("price").ascending());
         Page<Product> page = new PageImpl<>(List.of(Product.builder().build()));
-
         when(productRepository.findByNameContainingIgnoreCase(anyString(), any(Pageable.class))).thenReturn(page);
 
         Page<Product> result = productService.listProductsPageable("test", 0, 10, "price", "asc");
@@ -202,6 +185,7 @@ class ProductServiceImplTest {
         when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
         Page<Product> result = productService.listProductsPageable(null, -5, 10, "price", "asc");
+
         assertEquals(1, result.getContent().size());
     }
 
@@ -211,6 +195,7 @@ class ProductServiceImplTest {
         when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
         Page<Product> result = productService.listProductsPageable(null, 0, 10, "price", "invalidOrder");
+
         assertEquals(1, result.getContent().size());
     }
 }

@@ -6,37 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name = "products")
+@Table(name = "user")
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+@Builder
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, unique = true, length = 50)
-    private String name;
-
-    @Column(name = "category", nullable = false, length = 50)
-    private String category;
-
-    @Column(name = "description", length = 200)
-    private String description;
-
-    @Column(name = "price", nullable = false)
-    private BigDecimal price;
-
-    @Column(name = "stock", nullable = false)
-    private Integer stock = 0;
+    @Column(name = "username", nullable = false, length = 50)
+    private String username;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
@@ -53,5 +40,8 @@ public class Product {
     public void preUpdate() {
         updatedAt = new Timestamp(System.currentTimeMillis());
     }
+
+
+
 
 }

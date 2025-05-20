@@ -5,29 +5,27 @@ import com.example.toko_onlen.util.UuidParseUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
-@AllArgsConstructor
-@Setter
 @Getter
 @Builder
+@AllArgsConstructor
 public class ProductResponse {
 
     private String id;
     private String name;
     private String category;
     private String description;
-    private double price;
+    private String price;
     private int stock;
 
     public static ProductResponse of(Product product) {
-        if(product == null) return null;
+        if (product == null) return null;
         return ProductResponse.builder()
                 .id(UuidParseUtil.uuidToString(product.getId()))
                 .name(product.getName())
                 .category(product.getCategory())
-                .description(product.getDescription() == null || product.getDescription().isBlank() ? null : product.getDescription())
-                .price(product.getPrice())
+                .description(product.getDescription() != null && !product.getDescription().isBlank() ? product.getDescription() : null)
+                .price(product.getPrice().toPlainString())
                 .stock(product.getStock())
                 .build();
     }

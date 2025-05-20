@@ -4,6 +4,7 @@ import com.example.toko_onlen.entity.Product;
 import com.example.toko_onlen.exception.ResourceNotFoundException;
 import com.example.toko_onlen.repository.ProductRepository;
 import com.example.toko_onlen.service.ProductService;
+import com.example.toko_onlen.util.BigDecimalParseUtil;
 import com.example.toko_onlen.util.UuidParseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -24,9 +26,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product createProduct(String name, String category, String description, double price, int stock) {
-        if (price < 0.0 || stock < 0) {
-            throw new IllegalArgumentException("Price and stock cannot be negative");
+    public Product createProduct(String name, String category, String description, BigDecimal price, int stock) {
+        BigDecimalParseUtil.validatePositive(price, "Price must be positive");
+        if (stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative");
         }
 
         Product newProduct = Product.builder()
@@ -40,19 +43,20 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(newProduct);
     }
 
+
     @Override
-    public Product updateProduct(String id, String name, String category, String description, Double price, Integer stock) {
+    public Product updateProduct(String id, String name, String category, String description, BigDecimal price, Integer stock) {
         UUID uuid = UuidParseUtil.stringToUuid(id);
 
-        Product product = productRepository.findById(uuid)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-
-        if (price != null && price < 0.0) {
-            throw new IllegalArgumentException("Price cannot be negative");
+        if (price != null) {
+            BigDecimalParseUtil.validatePositive(price, "Price must be positive");
         }
         if (stock != null && stock < 0) {
             throw new IllegalArgumentException("Stock cannot be negative");
         }
+
+        Product product = productRepository.findById(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         product.setName(isBlank(name) ? product.getName() : name);
         product.setCategory(isBlank(category) ? product.getCategory() : category);
@@ -62,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.save(product);
     }
+
 
     @Override
     public void deleteProduct(String id) {

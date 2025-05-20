@@ -3,14 +3,15 @@ package com.example.toko_onlen.dto.request;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
 
@@ -25,9 +26,8 @@ public class ProductRequest {
     @Length(max = 200, message = "Deskripsi produk maksimal 200 karakter", groups = {onCreate.class, onUpdate.class})
     private String description;
 
-    @Positive(message = "Harga harus lebih dari 0", groups = {onCreate.class, onUpdate.class})
     @NotNull(message = "Harga tidak boleh kosong", groups = {onCreate.class})
-    private Double price;
+    private String price;
 
     @Min(value = 0, message = "Stok minimal 0", groups = {onCreate.class, onUpdate.class})
     @NotNull(message = "Stok tidak boleh kosong", groups = {onCreate.class})
@@ -36,4 +36,3 @@ public class ProductRequest {
     public interface onCreate {}
     public interface onUpdate {}
 }
-
