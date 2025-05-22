@@ -1,4 +1,4 @@
-package com.example.toko_onlen.entity;
+package com.example.toko_onlen.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

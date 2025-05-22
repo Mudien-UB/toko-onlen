@@ -1,6 +1,6 @@
 package com.example.toko_onlen.service;
 
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.model.entity.Product;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;

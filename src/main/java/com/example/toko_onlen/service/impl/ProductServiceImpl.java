@@ -1,6 +1,6 @@
 package com.example.toko_onlen.service.impl;
 
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.exception.ResourceNotFoundException;
 import com.example.toko_onlen.repository.ProductRepository;
 import com.example.toko_onlen.service.ProductService;

@@ -5,7 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.repository.ProductRepository;
 
 import java.math.BigDecimal;

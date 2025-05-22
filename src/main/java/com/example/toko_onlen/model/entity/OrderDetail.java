@@ -1,6 +1,14 @@
-package com.example.toko_onlen.entity;
+package com.example.toko_onlen.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,21 +41,6 @@ public class OrderDetail {
 
     @Column(name = "total", nullable = false, precision = 19, scale = 2)
     private BigDecimal total;
-
-    @PrePersist
-    public void prePersist() {
-        if (product != null && product.getPrice() != null) {
-            total = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        if (product != null && product.getPrice() != null) {
-            total = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-        }
-    }
-
 
 }
 

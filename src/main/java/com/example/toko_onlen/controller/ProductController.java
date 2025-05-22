@@ -3,7 +3,9 @@ package com.example.toko_onlen.controller;
 import com.example.toko_onlen.dto.common.CustomizeResponseEntity;
 import com.example.toko_onlen.dto.request.ProductRequest;
 import com.example.toko_onlen.dto.response.ProductResponse;
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.dto.validation.OnCreate;
+import com.example.toko_onlen.dto.validation.OnUpdate;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.exception.ResourceNotFoundException;
 import com.example.toko_onlen.service.ProductService;
 import com.example.toko_onlen.util.BigDecimalParseUtil;
@@ -28,7 +30,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/add-product")
-    public ResponseEntity<?> addProduct(@Validated(ProductRequest.onCreate.class) @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<?> addProduct(@Validated(OnCreate.class) @RequestBody ProductRequest productRequest) {
 
         BigDecimalParseUtil.validatePositive(productRequest.getPrice());
 
@@ -45,7 +47,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(
             @PathVariable String id,
-            @Validated(ProductRequest.onUpdate.class) @RequestBody ProductRequest productRequest) {
+            @Validated(OnUpdate.class) @RequestBody ProductRequest productRequest) {
 
         validateUUID(id);
         if (isAllFieldNull(productRequest)) {

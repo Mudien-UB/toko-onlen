@@ -1,16 +1,18 @@
-package com.example.toko_onlen.entity;
+package com.example.toko_onlen.model.entity;
 
+import com.example.toko_onlen.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +25,11 @@ public class Order {
     private Long id;
 
     @Column(name = "grand_total", nullable = false)
-    private Double grandTotal;
+    private BigDecimal grandTotal;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -1,6 +1,6 @@
 package com.example.toko_onlen.dto.response;
 
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.util.UuidParseUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
