@@ -3,24 +3,19 @@ package com.example.toko_onlen.controller;
 import com.example.toko_onlen.dto.common.CustomizeResponseEntity;
 import com.example.toko_onlen.dto.request.ProductRequest;
 import com.example.toko_onlen.dto.response.ProductResponse;
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.dto.validation.OnCreate;
+import com.example.toko_onlen.dto.validation.OnUpdate;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.exception.ResourceNotFoundException;
 import com.example.toko_onlen.service.ProductService;
+import com.example.toko_onlen.util.BigDecimalParseUtil;
 import com.example.toko_onlen.util.UuidParseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,12 +30,15 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/add-product")
-    public ResponseEntity<?> addProduct(@Validated(ProductRequest.onCreate.class) @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<?> addProduct(@Validated(OnCreate.class) @RequestBody ProductRequest productRequest) {
+
+        BigDecimalParseUtil.validatePositive(productRequest.getPrice());
+
         Product product = productService.createProduct(
                 productRequest.getName(),
                 productRequest.getCategory(),
                 productRequest.getDescription(),
-                productRequest.getPrice(),
+                BigDecimalParseUtil.strToBigDecimal(productRequest.getPrice(), "Invalid price format"),
                 productRequest.getStock()
         );
         return CustomizeResponseEntity.buildResponse(HttpStatus.CREATED, "Product Created", ProductResponse.of(product));
@@ -49,7 +47,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(
             @PathVariable String id,
-            @Validated(ProductRequest.onUpdate.class) @RequestBody ProductRequest productRequest) {
+            @Validated(OnUpdate.class) @RequestBody ProductRequest productRequest) {
 
         validateUUID(id);
         if (isAllFieldNull(productRequest)) {
@@ -61,7 +59,7 @@ public class ProductController {
                 productRequest.getName(),
                 productRequest.getCategory(),
                 productRequest.getDescription(),
-                productRequest.getPrice(),
+                productRequest.getPrice() == null ? null : BigDecimalParseUtil.strToBigDecimal(productRequest.getPrice(), "Invalid price format"),
                 productRequest.getStock()
         );
         return CustomizeResponseEntity.buildResponse(HttpStatus.OK, "Product Updated", ProductResponse.of(product));
@@ -78,7 +76,7 @@ public class ProductController {
     public ResponseEntity<?> getProduct(@PathVariable String id) {
         validateUUID(id);
         Product product = productService.getProduct(id);
-        if(product == null) {
+        if (product == null) {
             throw new ResourceNotFoundException("Product not found");
         }
         return CustomizeResponseEntity.buildResponse(HttpStatus.OK, "Product Found", ProductResponse.of(product));
@@ -93,14 +91,14 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
 
-        if(page < 1) page = 1;
+        if (page < 1) page = 1;
         if (size < 1) size = 10;
         if (!Arrays.asList("name", "price", "stock").contains(sortBy.toLowerCase())) {
             throw new IllegalArgumentException("Invalid sort parameter");
         }
 
         Page<Product> productPage = productService.listProductsPageable(keyword, page, size, sortBy, sortOrder);
-        if(!productPage.hasContent()){
+        if (!productPage.hasContent()) {
             throw new ResourceNotFoundException("Product not found");
         }
         List<ProductResponse> content = productPage.getContent().stream().map(ProductResponse::of).collect(Collectors.toList());

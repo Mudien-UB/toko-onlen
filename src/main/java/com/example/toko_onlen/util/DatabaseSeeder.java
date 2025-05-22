@@ -5,9 +5,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.example.toko_onlen.entity.Product;
+import com.example.toko_onlen.model.entity.Product;
 import com.example.toko_onlen.repository.ProductRepository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Locale;
 
@@ -29,7 +30,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .name(faker.commerce().productName() + " " + faker.number().randomDigit())
                         .category(faker.commerce().department())
                         .description(faker.lorem().sentence(10))
-                        .price(Double.valueOf(faker.commerce().price(10000.0, 100000.0)))
+                        .price(BigDecimal.valueOf(Double.parseDouble(faker.commerce().price(10000.0, 100000.0))))
                         .stock(faker.number().numberBetween(5, 100))
                         .createdAt(new Timestamp(System.currentTimeMillis()))
                         .updatedAt(new Timestamp(System.currentTimeMillis()))
