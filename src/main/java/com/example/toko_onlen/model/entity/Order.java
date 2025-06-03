@@ -1,6 +1,6 @@
 package com.example.toko_onlen.model.entity;
 
-import com.example.toko_onlen.model.enums.OrderStatus;
+import com.example.toko_onlen.model.enums.ORDER_STATUS;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,11 +25,11 @@ public class Order {
     private Long id;
 
     @Column(name = "grand_total", nullable = false)
-    private BigDecimal grandTotal;
+    private BigDecimal grandTotal = BigDecimal.ZERO;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private ORDER_STATUS status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -1,6 +1,9 @@
-package com.example.toko_onlen.util;
+package com.example.toko_onlen.model.seeder;
 
+import com.example.toko_onlen.model.entity.User;
+import com.example.toko_onlen.repository.UserRepository;
 import com.github.javafaker.Faker;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -14,13 +17,11 @@ import java.util.Locale;
 
 @Profile("dev")
 @Component
+@RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final Faker faker = new Faker(new Locale("id_ID"));
-
-    public DatabaseSeeder(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     @Override
     public void run(String... args) {
@@ -40,5 +41,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
             System.out.println("20 Produk dummy berhasil di-seed!");
         }
+        if(userRepository.count() == 0) {
+            for (int i = 0; i < 10; i++) {
+                User user = User.builder()
+                        .username(faker.name().username())
+                        .build();
+                userRepository.save(user);
+            }
+        }
+        System.out.println("10 User dummy berhasil di-seed!");
     }
 }
