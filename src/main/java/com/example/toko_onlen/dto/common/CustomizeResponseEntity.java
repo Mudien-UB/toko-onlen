@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 
 public class CustomizeResponseEntity {
 
-
     public static <T> ResponseEntity<CommonResponse<T>> buildResponse(HttpStatus status, String message, T data) {
 
         CommonResponse<T> commonResponse = CommonResponse.<T>builder()
